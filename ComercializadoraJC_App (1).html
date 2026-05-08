@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Comercializadora JC — Sistema de Taller</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ══ RESET & BASE ══════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --navy:#0A1F35;--navy2:#0E2C48;--orange:#FF9F0A;--orange2:#FFAD0D;
+  --green:#27AE60;--red:#E74C3C;--cream:#F5F0E8;
+  --bg:#F8F6F2;--bg2:#EFEAE0;--surface:#FFFFFF;
+  --text:#1A1A1A;--muted:#6B6B6B;--border:#D8D0C0;
+  --shadow:0 2px 12px rgba(10,31,53,.10);
+  --shadow-lg:0 8px 32px rgba(10,31,53,.14);
+  --r:12px;--r-sm:8px;--r-lg:18px;
+  font-family:'DM Sans',sans-serif;
+}
+html,body{height:100%;background:var(--bg)}
+body{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+/* ══ TOPBAR ════════════════════════════════════════════════════ */
+.topbar{
+  background:var(--navy);color:#fff;
+  padding:14px 20px 12px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+  box-shadow:0 2px 16px rgba(0,0,0,.3);
+  position:relative;z-index:10;
+}
+.topbar-logo{display:flex;align-items:center;gap:10px}
+.topbar-icon{
+  width:36px;height:36px;background:var(--orange);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.topbar-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:.3px}
+.topbar-sub{font-size:11px;opacity:.55;margin-top:1px;font-weight:300}
+.sync-btn{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  color:#fff;padding:6px 12px;border-radius:20px;font-size:11px;
+  cursor:pointer;transition:.2s;font-family:'DM Sans',sans-serif;
+  white-space:nowrap;
+}
+.sync-btn:hover{background:rgba(255,255,255,.15)}
+.sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;transition:.3s}
+.dot-ok{background:#4ADE80}
+.dot-sync{background:var(--orange);animation:pulse .8s infinite}
+.dot-err{background:var(--red)}
+.dot-off{background:#666}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+/* ══ TABS ══════════════════════════════════════════════════════ */
+.tabs{
+  display:flex;background:var(--navy2);
+  padding:0 8px;gap:2px;flex-shrink:0;
+  overflow-x:auto;scrollbar-width:none;
+  border-bottom:2px solid rgba(255,159,10,.4);
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  padding:11px 14px;font-size:12px;font-weight:500;
+  color:rgba(255,255,255,.5);cursor:pointer;
+  border:none;background:transparent;
+  white-space:nowrap;transition:.15s;
+  border-radius:8px 8px 0 0;
+  font-family:'DM Sans',sans-serif;
+  flex-shrink:0;
+}
+.tab.active{background:var(--orange);color:var(--navy);font-weight:600}
+.tab:hover:not(.active){color:#fff;background:rgba(255,255,255,.08)}
+/* ══ PANELS ════════════════════════════════════════════════════ */
+.panels{flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
+.panel{display:none}
+.panel.active{display:block}
+/* ══ SECTION HEADERS ═══════════════════════════════════════════ */
+.shdr{
+  display:flex;align-items:center;gap:8px;
+  background:var(--navy2);color:#fff;
+  padding:9px 14px;border-radius:var(--r-sm);
+  margin-bottom:12px;font-size:12px;font-weight:500;
+  font-family:'Syne',sans-serif;letter-spacing:.3px;
+}
+.shdr-icon{color:var(--orange2);font-size:14px}
+/* ══ FORMS ═════════════════════════════════════════════════════ */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.full{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{
+  font-size:10px;font-weight:500;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.6px;
+}
+.field input,.field select,.field textarea{
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--r-sm);padding:9px 11px;
+  font-size:14px;color:var(--text);width:100%;
+  font-family:'DM Sans',sans-serif;
+  transition:.15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:none;border-color:var(--orange);
+  box-shadow:0 0 0 3px rgba(255,159,10,.12);
+}
+.field textarea{resize:vertical;min-height:60px}
+.field input.auto-fill{
+  background:var(--bg2);color:var(--navy2);
+  font-style:italic;border-style:dashed;font-size:13px;
+}
+.field input.plates-input{
+  font-family:'Syne',sans-serif;font-size:18px;font-weight:700;
+  text-transform:uppercase;letter-spacing:2px;
+  background:var(--navy);color:var(--orange);
+  border-color:var(--orange);text-align:center;
+}
+.field input.plates-input::placeholder{color:rgba(255,159,10,.35)}
+/* ══ BUTTONS ═══════════════════════════════════════════════════ */
+.btn{
+  padding:9px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:500;
+  cursor:pointer;border:none;display:inline-flex;align-items:center;
+  gap:6px;transition:.15s;font-family:'DM Sans',sans-serif;
+}
+.btn-save{
+  background:var(--green);color:#fff;width:100%;
+  justify-content:center;margin-top:14px;
+  padding:14px;font-size:15px;font-weight:600;
+  border-radius:var(--r);font-family:'Syne',sans-serif;
+  box-shadow:0 4px 16px rgba(39,174,96,.3);
+}
+.btn-save:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 20px rgba(39,174,96,.4)}
+.btn-save:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{opacity:.87}
+.btn-or{background:var(--orange);color:var(--navy);font-weight:600}
+.btn-or:hover{opacity:.87}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--orange);color:var(--orange)}
+.btn-sm{padding:6px 11px;font-size:12px}
+.btn-danger{background:var(--red);color:#fff}
+/* ══ CARDS ═════════════════════════════════════════════════════ */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:14px 16px;
+  margin-bottom:12px;box-shadow:var(--shadow);
+}
+/* ══ BADGES ════════════════════════════════════════════════════ */
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.b-green{background:#D5F5E3;color:#1A7A40}
+.b-orange{background:#FEF3CD;color:#8B5E00}
+.b-navy{background:#D6E4F0;color:#0A1F35}
+.b-red{background:#FDECEA;color:#9B2335}
+.b-gray{background:var(--bg2);color:var(--muted)}
+/* ══ TABLES ════════════════════════════════════════════════════ */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r-sm);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{
+  background:var(--navy);color:#fff;
+  padding:9px 11px;text-align:left;font-weight:500;
+  font-size:11px;font-family:'Syne',sans-serif;
+  white-space:nowrap;
+}
+td{padding:8px 11px;border-bottom:.5px solid var(--border);vertical-align:middle;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:nth-child(even) td{background:var(--bg)}
+tr:hover td{background:rgba(255,159,10,.06)}
+/* ══ KPI GRID ══════════════════════════════════════════════════ */
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.kpi{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:14px;text-align:center;
+  box-shadow:var(--shadow);
+}
+.kpi-num{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--navy2)}
+.kpi-lbl{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+/* ══ SEARCH RESULT ═════════════════════════════════════════════ */
+.s-result{
+  background:var(--surface);border:2px solid var(--orange);
+  border-radius:var(--r-lg);padding:16px;margin-bottom:12px;
+  box-shadow:0 4px 20px rgba(255,159,10,.12);
+}
+.s-result-title{
+  font-family:'Syne',sans-serif;font-size:16px;font-weight:700;
+  margin-bottom:12px;color:var(--navy);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+/* ══ TOAST ═════════════════════════════════════════════════════ */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  padding:11px 22px;border-radius:40px;font-size:13px;font-weight:500;
+  z-index:9999;pointer-events:none;transition:.3s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.2);
+  font-family:'DM Sans',sans-serif;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.ok{background:var(--green);color:#fff}
+.toast.err{background:var(--red);color:#fff}
+.toast.info{background:var(--navy);color:#fff}
+/* ══ SETUP SCREEN ══════════════════════════════════════════════ */
+.setup-screen{
+  position:fixed;inset:0;background:var(--navy);
+  z-index:9998;display:flex;align-items:center;justify-content:center;
+  padding:24px;
+}
+.setup-box{
+  background:var(--surface);border-radius:24px;
+  padding:28px 24px;width:100%;max-width:480px;
+  box-shadow:0 24px 80px rgba(0,0,0,.4);
+}
+.setup-logo{text-align:center;margin-bottom:20px}
+.setup-logo .icon{
+  width:64px;height:64px;background:var(--orange);border-radius:16px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:30px;margin-bottom:12px;
+}
+.setup-logo h1{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--navy)}
+.setup-logo p{font-size:13px;color:var(--muted);margin-top:4px}
+.setup-step{
+  background:var(--bg);border-radius:var(--r);padding:12px 14px;
+  margin-bottom:10px;font-size:12px;color:var(--text);line-height:1.6;
+}
+.setup-step strong{color:var(--navy);font-size:13px;display:block;margin-bottom:4px}
+.setup-link{
+  display:inline-block;color:var(--orange);font-weight:600;
+  text-decoration:none;word-break:break-all;
+}
+.setup-fields{display:flex;flex-direction:column;gap:8px;margin:14px 0}
+.setup-field label{font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px}
+.setup-field input{
+  width:100%;padding:9px 12px;border:1.5px solid var(--border);
+  border-radius:var(--r-sm);font-size:13px;color:var(--text);
+  background:var(--surface);font-family:'DM Sans',sans-serif;
+}
+.setup-field input:focus{outline:none;border-color:var(--orange)}
+.setup-field input.filled{border-color:var(--green);background:#f0fff4}
+.conn-status{
+  padding:10px 14px;border-radius:var(--r-sm);font-size:12px;
+  margin:10px 0;text-align:center;font-weight:500;
+}
+.conn-ok{background:#D5F5E3;color:#1A7A40}
+.conn-err{background:#FDECEA;color:#9B2335}
+.conn-testing{background:var(--bg2);color:var(--muted)}
+/* ══ MISC ══════════════════════════════════════════════════════ */
+.alert{background:#FFF8E1;border:1px solid var(--orange2);border-radius:var(--r-sm);padding:10px 12px;font-size:12px;color:#7A5800;margin-bottom:10px}
+.divider{height:.5px;background:var(--border);margin:12px 0}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.tag{display:inline-block;background:var(--cream);color:var(--navy2);padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;margin:2px}
+.plate-tag{font-family:'Syne',sans-serif;background:var(--navy);color:var(--orange);padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:1.5px}
+.no-data{text-align:center;padding:28px;color:var(--muted);font-size:13px}
+.spinning{animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:500px){.g2,.g3{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}.topbar-title{font-size:13px}}
+</style>
+</head>
+<body>
+
+<!-- ══ SETUP SCREEN ══════════════════════════════════════════════ -->
+<div class="setup-screen" id="setup-screen">
+  <div class="setup-box">
+    <div class="setup-logo">
+      <div class="icon">🚗</div>
+      <h1>Comercializadora JC</h1>
+      <p>Conecta con Firebase para sincronizar todos tus dispositivos</p>
+    </div>
+
+    <div class="setup-step">
+      <strong>Paso 1 — Crea el proyecto Firebase (2 min)</strong>
+      1. Ve a <a class="setup-link" href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a><br>
+      2. Clic en <b>"Agregar proyecto"</b> → nombre: <b>ComercializadoraJC</b><br>
+      3. Desactiva Google Analytics → <b>"Crear proyecto"</b>
+    </div>
+
+    <div class="setup-step">
+      <strong>Paso 2 — Activa Realtime Database</strong>
+      1. En el menú izquierdo: <b>Compilar → Realtime Database</b><br>
+      2. Clic <b>"Crear base de datos"</b> → elige <b>us-central1</b><br>
+      3. Selecciona <b>"Modo de prueba"</b> → <b>"Habilitar"</b>
+    </div>
+
+    <div class="setup-step">
+      <strong>Paso 3 — Registra la app web</strong>
+      1. Clic en el ícono <b>&lt;/&gt;</b> (Web) en la página principal del proyecto<br>
+      2. Nombre: <b>JC App</b> → <b>"Registrar app"</b><br>
+      3. Copia los datos del objeto <b>firebaseConfig</b> que aparece y pégalos abajo
+    </div>
+
+    <div class="setup-fields">
+      <div class="setup-field">
+        <label>API Key</label>
+        <input type="text" id="cfg-apikey" placeholder="AIzaSy..." oninput="checkFields()">
+      </div>
+      <div class="setup-field">
+        <label>Database URL</label>
+        <input type="text" id="cfg-dburl" placeholder="https://comercializadorajc-default-rtdb.firebaseio.com" oninput="checkFields()">
+      </div>
+      <div class="setup-field">
+        <label>Project ID</label>
+        <input type="text" id="cfg-projid" placeholder="comercializadorajc" oninput="checkFields()">
+      </div>
+      <div class="setup-field">
+        <label>App ID</label>
+        <input type="text" id="cfg-appid" placeholder="1:123456:web:abc..." oninput="checkFields()">
+      </div>
+    </div>
+
+    <div id="conn-status" class="conn-status" style="display:none"></div>
+
+    <button class="btn btn-or" style="width:100%;justify-content:center;padding:13px;font-size:14px;font-family:'Syne',sans-serif;font-weight:700" id="btn-connect" onclick="conectarFirebase()" disabled>
+      Conectar y comenzar
+    </button>
+    <div style="text-align:center;margin-top:10px">
+      <button style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:underline" onclick="usarModoLocal()">
+        Usar sin Firebase (solo este dispositivo)
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP PRINCIPAL ═════════════════════════════════════════════ -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="topbar-icon">🚗</div>
+    <div>
+      <div class="topbar-title">Comercializadora JC</div>
+      <div class="topbar-sub" id="topbar-sub">Cargando...</div>
+    </div>
+  </div>
+  <button class="sync-btn" id="sync-btn" onclick="sincronizar()">
+    <div class="sync-dot dot-off" id="sync-dot"></div>
+    <span id="sync-lbl">Conectando</span>
+  </button>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="registro" onclick="showTab('registro',this)">➕ Registro</button>
+  <button class="tab" data-tab="buscar" onclick="showTab('buscar',this)">🔍 Buscar</button>
+  <button class="tab" data-tab="clientes" onclick="showTab('clientes',this)">👥 Clientes</button>
+  <button class="tab" data-tab="vehiculos" onclick="showTab('vehiculos',this)">🚘 Vehículos</button>
+  <button class="tab" data-tab="resumen" onclick="showTab('resumen',this)">📊 Resumen</button>
+</div>
+
+<div class="panels">
+
+<!-- TAB: REGISTRO -->
+<div class="panel active" id="tab-registro">
+  <div class="shdr"><span class="shdr-icon">🔍</span> Paso 1 — Placas del vehículo</div>
+  <div class="g2" style="margin-bottom:10px">
+    <div class="field">
+      <label>Placas del vehículo</label>
+      <input type="text" class="plates-input" id="r-placas" placeholder="ABC-123" oninput="buscarRegPlacas()">
+    </div>
+    <div class="field">
+      <label>Vehículo encontrado</label>
+      <input class="auto-fill" id="r-veh-enc" readonly placeholder="Aparece automático">
+    </div>
+  </div>
+  <div id="r-info-veh" style="display:none" class="card">
+    <div class="g3">
+      <div class="field"><label>Cliente</label><input class="auto-fill" id="r-cli" readonly></div>
+      <div class="field"><label>Teléfono</label><input class="auto-fill" id="r-tel" readonly></div>
+      <div class="field"><label>Unidad</label><input class="auto-fill" id="r-unidad" readonly></div>
+    </div>
+  </div>
+
+  <div class="shdr" style="margin-top:14px"><span class="shdr-icon">🔧</span> Paso 2 — Datos del servicio</div>
+  <div class="g2">
+    <div class="field"><label>Fecha</label><input type="date" id="r-fecha"></div>
+    <div class="field"><label>Tipo de servicio</label>
+      <select id="r-tipo">
+        <option value="">Selecciona...</option>
+        <option>Mantenimiento Preventivo</option><option>Cambio de aceite</option>
+        <option>Servicio de frenos</option><option>Diagnóstico y reparación</option>
+        <option>Eléctrico</option><option>Motor</option><option>Suspensión</option>
+        <option>Transmisión</option><option>Aire acondicionado</option><option>Otro</option>
+      </select>
+    </div>
+    <div class="field full"><label>Descripción del trabajo</label>
+      <textarea id="r-desc" placeholder="Describe los trabajos realizados..."></textarea>
+    </div>
+    <div class="field full"><label>Refacciones / Materiales</label>
+      <textarea id="r-refacc" placeholder="Lista las piezas y materiales usados..."></textarea>
+    </div>
+    <div class="field"><label>Mano de obra $MXN</label><input type="number" id="r-mo" value="0" min="0" oninput="calcTotal()"></div>
+    <div class="field"><label>Costo refacciones $MXN</label><input type="number" id="r-cr" value="0" min="0" oninput="calcTotal()"></div>
+    <div class="field"><label>Total $MXN</label>
+      <input id="r-total" class="auto-fill" readonly style="font-weight:700;font-family:'Syne',sans-serif;font-size:16px;color:var(--green);border-color:var(--green);font-style:normal">
+    </div>
+    <div class="field"><label>Estado</label>
+      <select id="r-estado"><option>Completado</option><option>En Proceso</option><option>Pendiente</option></select>
+    </div>
+    <div class="field"><label>Técnico responsable</label><input id="r-tec" placeholder="Nombre del mecánico"></div>
+    <div class="field"><label>Km actuales</label><input type="number" id="r-km" min="0" placeholder="85000"></div>
+  </div>
+  <button class="btn btn-save" id="btn-save" onclick="guardarServicio()">💾 Guardar Servicio</button>
+
+  <div id="r-hist-sec" style="display:none;margin-top:18px">
+    <div class="shdr"><span class="shdr-icon">📋</span> Historial del vehículo</div>
+    <div id="r-hist-body"></div>
+  </div>
+</div>
+
+<!-- TAB: BUSCAR -->
+<div class="panel" id="tab-buscar">
+  <div class="shdr"><span class="shdr-icon">🚘</span> Buscar por placas</div>
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <input type="text" id="b-placas" placeholder="Escribe las placas..." oninput="buscarPlacas()"
+      style="flex:1;padding:10px 13px;font-size:16px;border:1.5px solid var(--border);border-radius:var(--r-sm);background:var(--surface);color:var(--text);font-family:'Syne',sans-serif;text-transform:uppercase;letter-spacing:1px">
+    <button class="btn btn-or" onclick="buscarPlacas()">🔍 Buscar</button>
+  </div>
+  <div id="b-r-placas"></div>
+
+  <div class="divider"></div>
+  <div class="shdr"><span class="shdr-icon">👤</span> Buscar por nombre o empresa</div>
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <input type="text" id="b-nombre" placeholder="Escribe nombre o empresa..." oninput="buscarNombre()"
+      style="flex:1;padding:10px 13px;font-size:14px;border:1.5px solid var(--border);border-radius:var(--r-sm);background:var(--surface);color:var(--text)">
+    <button class="btn btn-or" onclick="buscarNombre()">🔍 Buscar</button>
+  </div>
+  <div id="b-r-nombre"></div>
+</div>
+
+<!-- TAB: CLIENTES -->
+<div class="panel" id="tab-clientes">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div class="shdr" style="margin:0"><span class="shdr-icon">👥</span> Clientes registrados</div>
+    <button class="btn btn-navy btn-sm" onclick="toggleModal('m-cli')">➕ Nuevo cliente</button>
+  </div>
+  <div id="m-cli" style="display:none" class="card" style="margin-bottom:14px">
+    <div class="shdr"><span class="shdr-icon">👤</span> <span id="cli-modal-title">Nuevo cliente</span></div>
+    <div class="g2">
+      <div class="field"><label>ID Cliente</label><input id="c-id" placeholder="CLI-006" style="text-transform:uppercase"></div>
+      <div class="field"><label>Nombre completo *</label><input id="c-nom" placeholder="Nombre completo"></div>
+      <div class="field"><label>Teléfono</label><input id="c-tel" placeholder="664-100-2233"></div>
+      <div class="field"><label>Email</label><input id="c-email" placeholder="correo@email.com"></div>
+      <div class="field"><label>Empresa / Flotilla</label><input id="c-emp" placeholder="Nombre o —"></div>
+      <div class="field"><label>Tipo</label><select id="c-tipo"><option>Particular</option><option>Flotilla</option></select></div>
+      <div class="field"><label>Ciudad</label><input id="c-ciudad" placeholder="Tijuana"></div>
+      <div class="field"><label>RFC</label><input id="c-rfc" placeholder="XXXX-000000-XXX"></div>
+      <div class="field full"><label>Notas</label><textarea id="c-notas" placeholder="Información adicional del cliente..."></textarea></div>
+    </div>
+    <div class="row-btns">
+      <button class="btn btn-save" style="margin:0;flex:1" onclick="guardarCliente()">💾 Guardar cliente</button>
+      <button class="btn btn-outline" onclick="toggleModal('m-cli')">Cancelar</button>
+    </div>
+  </div>
+  <div id="lista-cli"></div>
+</div>
+
+<!-- TAB: VEHÍCULOS -->
+<div class="panel" id="tab-vehiculos">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div class="shdr" style="margin:0"><span class="shdr-icon">🚘</span> Vehículos registrados</div>
+    <button class="btn btn-navy btn-sm" onclick="abrirModalVeh()">➕ Nuevo vehículo</button>
+  </div>
+  <div id="m-veh" style="display:none" class="card">
+    <div class="shdr"><span class="shdr-icon">🚘</span> Nuevo vehículo</div>
+    <div class="g2">
+      <div class="field"><label>ID Vehículo</label><input id="v-id" placeholder="VEH-007" style="text-transform:uppercase"></div>
+      <div class="field"><label>ID Cliente (dueño)</label><select id="v-cli"></select></div>
+      <div class="field"><label>Placas *</label><input id="v-placas" placeholder="ABC-123-TJ" style="text-transform:uppercase"></div>
+      <div class="field"><label>Marca</label><input id="v-marca" placeholder="Toyota"></div>
+      <div class="field"><label>Modelo</label><input id="v-modelo" placeholder="Hilux"></div>
+      <div class="field"><label>Año</label><input type="number" id="v-anio" placeholder="2022" min="1990" max="2035"></div>
+      <div class="field"><label>Color</label><input id="v-color" placeholder="Blanco"></div>
+      <div class="field"><label>Combustible</label>
+        <select id="v-comb"><option>Gasolina</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select>
+      </div>
+      <div class="field"><label>Km actuales</label><input type="number" id="v-km" placeholder="85000" min="0"></div>
+      <div class="field"><label>VIN / No. Serie</label><input id="v-vin" placeholder="JTMB11FK20D012345"></div>
+      <div class="field full"><label>Notas del vehículo</label><textarea id="v-notas" placeholder="Observaciones importantes..."></textarea></div>
+    </div>
+    <div class="row-btns">
+      <button class="btn btn-save" style="margin:0;flex:1" onclick="guardarVehiculo()">💾 Guardar vehículo</button>
+      <button class="btn btn-outline" onclick="document.getElementById('m-veh').style.display='none'">Cancelar</button>
+    </div>
+  </div>
+  <div id="lista-veh"></div>
+</div>
+
+<!-- TAB: RESUMEN -->
+<div class="panel" id="tab-resumen">
+  <div id="res-kpis"></div>
+  <div class="shdr"><span class="shdr-icon">📋</span> Últimos servicios</div>
+  <div id="res-ultimos"></div>
+  <div style="margin-top:16px;text-align:center">
+    <button class="btn btn-outline btn-sm" onclick="exportarCSV()">📥 Exportar datos (CSV)</button>
+  </div>
+</div>
+
+</div><!-- /panels -->
+
+<div class="toast" id="toast"></div>
+
+<!-- ══ FIREBASE SDK ═══════════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+// ══ CONFIG ══════════════════════════════════════════════════════
+var FB_CONFIG_KEY = 'jc_firebase_config';
+var MODE = 'local'; // 'firebase' | 'local'
+var DB_LOCAL = { clientes:[], vehiculos:[], servicios:[] };
+var db_fb = null;
+var editingCliId = null;
+var editingVehId = null;
+
+var SEED = {
+  clientes:[
+    {id:"CLI-001",nombre:"Carlos Ramírez López",tel:"664-100-2233",email:"carlos@email.com",empresa:"—",tipo:"Particular",ciudad:"Tijuana",rfc:"RALC-850101-XXX",notas:"Cliente frecuente"},
+    {id:"CLI-002",nombre:"Transportes del Norte SA",tel:"664-200-4455",email:"admin@transnorte.com",empresa:"Transportes del Norte",tipo:"Flotilla",ciudad:"Tijuana",rfc:"TRAN-920315-XXX",notas:"Flotilla 8 unidades, pago quincenal"},
+    {id:"CLI-003",nombre:"María Fernanda Torres",tel:"619-555-7788",email:"mftorres@gmail.com",empresa:"—",tipo:"Particular",ciudad:"San Diego",rfc:"TOFM-900212-XXX",notas:"Cruza desde SD"},
+    {id:"CLI-004",nombre:"Grupo Logístico JBC",tel:"664-300-6677",email:"operaciones@jbc.mx",empresa:"Grupo JBC",tipo:"Flotilla",ciudad:"Tijuana",rfc:"GLJB-880520-XXX",notas:"12 unidades. Contrato anual."},
+    {id:"CLI-005",nombre:"Roberto Medina Ochoa",tel:"664-400-8899",email:"rmedina@hotmail.com",empresa:"—",tipo:"Particular",ciudad:"Tijuana",rfc:"MEOR-750808-XXX",notas:"—"}
+  ],
+  vehiculos:[
+    {id:"VEH-001",idCli:"CLI-001",placas:"ABC-123-TJ",marca:"Toyota",modelo:"Hilux",anio:2019,color:"Blanco",combustible:"Gasolina",km:85000,vin:"JTMB11FK20D012345",notas:"Aceite c/5000km"},
+    {id:"VEH-002",idCli:"CLI-002",placas:"XYZ-789-TJ",marca:"Nissan",modelo:"NP300",anio:2021,color:"Gris",combustible:"Diesel",km:42000,vin:"JN1FAAN15U0012678",notas:"Flotilla #3"},
+    {id:"VEH-003",idCli:"CLI-002",placas:"LMN-456-TJ",marca:"Nissan",modelo:"NP300",anio:2021,color:"Blanco",combustible:"Diesel",km:38000,vin:"JN1FAAN15U0013890",notas:"Flotilla #4"},
+    {id:"VEH-004",idCli:"CLI-003",placas:"7ABC123CA",marca:"Honda",modelo:"CR-V",anio:2022,color:"Rojo",combustible:"Gasolina",km:22000,vin:"5J6RW2H89NA012345",notas:"Placas California"},
+    {id:"VEH-005",idCli:"CLI-004",placas:"PQR-321-TJ",marca:"Ford",modelo:"F-150",anio:2020,color:"Negro",combustible:"Gasolina",km:67000,vin:"1FTEW1EP5LKD12345",notas:"Flotilla JBC"},
+    {id:"VEH-006",idCli:"CLI-005",placas:"DEF-654-TJ",marca:"Volkswagen",modelo:"Jetta",anio:2018,color:"Azul",combustible:"Gasolina",km:110000,vin:"3VW2B7AJ5JM123456",notas:"Alta en km"}
+  ],
+  servicios:[
+    {id:"SRV-001",idVeh:"VEH-001",idCli:"CLI-001",placas:"ABC-123-TJ",fecha:"2025-01-15",tipo:"Mantenimiento Preventivo",desc:"Cambio de aceite 5W-30, filtro aceite y filtro de aire",refacc:"Aceite Pennzoil 5W-30, Filtros Fram",manoObra:600,total:1850,tecnico:"Mecánico 1",estado:"Completado"},
+    {id:"SRV-002",idVeh:"VEH-002",idCli:"CLI-002",placas:"XYZ-789-TJ",fecha:"2025-01-20",tipo:"Mantenimiento Preventivo",desc:"Cambio de aceite diesel, filtros",refacc:"Aceite diesel 15W-40",manoObra:800,total:2400,tecnico:"Mecánico 2",estado:"Completado"},
+    {id:"SRV-003",idVeh:"VEH-004",idCli:"CLI-003",placas:"7ABC123CA",fecha:"2025-02-05",tipo:"Diagnóstico y reparación",desc:"Diagnóstico computarizado, cambio de sensor O2",refacc:"Sensor O2 Bosch",manoObra:1200,total:3200,tecnico:"Mecánico 1",estado:"Completado"},
+    {id:"SRV-004",idVeh:"VEH-005",idCli:"CLI-004",placas:"PQR-321-TJ",fecha:"2025-02-10",tipo:"Servicio de frenos",desc:"Cambio de balatas y rectificado de discos",refacc:"Balatas Wagner, Discos EBC",manoObra:1500,total:4500,tecnico:"Mecánico 2",estado:"Completado"},
+    {id:"SRV-005",idVeh:"VEH-001",idCli:"CLI-001",placas:"ABC-123-TJ",fecha:"2025-03-15",tipo:"Eléctrico",desc:"Cambio de batería y revisión de alternador",refacc:"Batería Optima 65",manoObra:400,total:2100,tecnico:"Mecánico 1",estado:"Completado"},
+    {id:"SRV-006",idVeh:"VEH-003",idCli:"CLI-002",placas:"LMN-456-TJ",fecha:"2025-03-20",tipo:"Mantenimiento Preventivo",desc:"Cambio aceite, filtros, revisión suspensión",refacc:"Aceite diesel, Filtros WIX",manoObra:700,total:2200,tecnico:"Mecánico 2",estado:"Completado"},
+    {id:"SRV-007",idVeh:"VEH-006",idCli:"CLI-005",placas:"DEF-654-TJ",fecha:"2025-04-01",tipo:"Motor",desc:"Junta de culata, revisión completa de motor",refacc:"Empaque culata, tornillos motor",manoObra:3500,total:8500,tecnico:"Mecánico 1",estado:"En Proceso"},
+    {id:"SRV-008",idVeh:"VEH-005",idCli:"CLI-004",placas:"PQR-321-TJ",fecha:"2025-04-15",tipo:"Mantenimiento Preventivo",desc:"Cambio de aceite y revisión general",refacc:"Aceite Mobil 1, Filtros",manoObra:800,total:2800,tecnico:"Mecánico 2",estado:"Completado"}
+  ]
+};
+
+// ══ HELPERS ═════════════════════════════════════════════════════
+function fmt(n){return'$'+Number(n||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+(type||'ok');
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid=setTimeout(function(){t.classList.remove('show')},2800);
+}
+function setSyncState(state,label){
+  var d=document.getElementById('sync-dot');
+  d.className='sync-dot dot-'+state;
+  document.getElementById('sync-lbl').textContent=label;
+}
+function showTab(name,el){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active')});
+  el.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='clientes')renderClientes();
+  if(name==='vehiculos')renderVehiculos();
+  if(name==='resumen')renderResumen();
+}
+function toggleModal(id){var el=document.getElementById(id);el.style.display=el.style.display==='none'?'block':'none'}
+function gCli(id){return DB_LOCAL.clientes.find(function(c){return c.id===id})||null}
+function gVeh(id){return DB_LOCAL.vehiculos.find(function(v){return v.id===id})||null}
+function gVehP(p){return DB_LOCAL.vehiculos.find(function(v){return v.placas.toUpperCase()===p.toUpperCase().trim()})||null}
+function gSrvVeh(id){return DB_LOCAL.servicios.filter(function(s){return s.idVeh===id}).sort(function(a,b){return b.fecha.localeCompare(a.fecha)})}
+function gSrvCli(id){return DB_LOCAL.servicios.filter(function(s){return s.idCli===id})}
+function badge(e){
+  if(e==='Completado')return'<span class="badge b-green">'+e+'</span>';
+  if(e==='En Proceso')return'<span class="badge b-orange">'+e+'</span>';
+  return'<span class="badge b-red">'+e+'</span>';
+}
+function nextId(pfx,arr){
+  var ns=arr.map(function(x){return parseInt((x.id||'').replace(pfx+'-',''))||0});
+  return pfx+'-'+String(Math.max(0,...ns)+1).padStart(3,'0');
+}
+function calcTotal(){
+  var mo=parseFloat(document.getElementById('r-mo').value)||0;
+  var cr=parseFloat(document.getElementById('r-cr').value)||0;
+  document.getElementById('r-total').value=fmt(mo+cr);
+}
+function histTabla(srvs){
+  if(!srvs.length)return'<p class="no-data">Sin servicios registrados aún</p>';
+  return'<div class="tbl-wrap"><table><thead><tr><th>Fecha</th><th>Tipo</th><th>Descripción</th><th>Total</th><th>Técnico</th><th>Estado</th></tr></thead><tbody>'
+    +srvs.map(function(s){
+      return'<tr><td>'+s.fecha+'</td><td>'+s.tipo+'</td><td style="white-space:normal;max-width:160px">'+s.desc+'</td>'
+        +'<td style="font-weight:700;color:var(--green)">'+fmt(s.total)+'</td>'
+        +'<td>'+s.tecnico+'</td><td>'+badge(s.estado)+'</td></tr>'
+    }).join('')+'</tbody></table></div>';
+}
+
+// ══ FIREBASE ════════════════════════════════════════════════════
+function checkFields(){
+  var ok=['cfg-apikey','cfg-dburl','cfg-projid','cfg-appid'].every(function(id){
+    return document.getElementById(id).value.trim().length>5;
+  });
+  document.getElementById('btn-connect').disabled=!ok;
+}
+
+async function conectarFirebase(){
+  var apiKey=document.getElementById('cfg-apikey').value.trim();
+  var dbURL=document.getElementById('cfg-dburl').value.trim();
+  var projectId=document.getElementById('cfg-projid').value.trim();
+  var appId=document.getElementById('cfg-appid').value.trim();
+  var st=document.getElementById('conn-status');
+  st.style.display='block';st.className='conn-status conn-testing';st.textContent='Probando conexión...';
+  try{
+    if(firebase.apps.length)firebase.apps.forEach(function(a){a.delete()});
+    firebase.initializeApp({apiKey:apiKey,authDomain:projectId+'.firebaseapp.com',
+      databaseURL:dbURL,projectId:projectId,storageBucket:projectId+'.appspot.com',appId:appId});
+    db_fb=firebase.database();
+    var ref=db_fb.ref('ping');
+    await ref.set(Date.now());
+    // Guardar config
+    localStorage.setItem(FB_CONFIG_KEY,JSON.stringify({apiKey,databaseURL:dbURL,projectId,appId}));
+    st.className='conn-status conn-ok';st.textContent='✅ Conexión exitosa. Cargando datos...';
+    MODE='firebase';
+    await iniciarFirebase();
+  }catch(e){
+    st.className='conn-status conn-err';
+    st.textContent='❌ Error: '+e.message+'. Verifica los datos.';
+  }
+}
+
+async function iniciarFirebase(){
+  setSyncState('sync','Cargando...');
+  return new Promise(function(resolve){
+    db_fb.ref('jcdb').once('value',function(snap){
+      var data=snap.val();
+      if(data){
+        DB_LOCAL.clientes=Object.values(data.clientes||{});
+        DB_LOCAL.vehiculos=Object.values(data.vehiculos||{});
+        DB_LOCAL.servicios=Object.values(data.servicios||{});
+      } else {
+        DB_LOCAL=JSON.parse(JSON.stringify(SEED));
+        guardarFirebase();
+      }
+      setSyncState('ok','Firebase ✓');
+      document.getElementById('topbar-sub').textContent='Sincronizado con Firebase';
+      document.getElementById('setup-screen').style.display='none';
+      document.getElementById('r-fecha').valueAsDate=new Date();
+      document.getElementById('r-total').value='$0.00';
+      renderResumen();
+      // Escuchar cambios en tiempo real
+      db_fb.ref('jcdb').on('value',function(s){
+        var d=s.val();
+        if(d){
+          DB_LOCAL.clientes=Object.values(d.clientes||{});
+          DB_LOCAL.vehiculos=Object.values(d.vehiculos||{});
+          DB_LOCAL.servicios=Object.values(d.servicios||{});
+          var act=document.querySelector('.tab.active');
+          if(act){
+            if(act.dataset.tab==='clientes')renderClientes();
+            if(act.dataset.tab==='vehiculos')renderVehiculos();
+            if(act.dataset.tab==='resumen')renderResumen();
+          }
+        }
+      });
+      resolve();
+    });
+  });
+}
+
+function guardarFirebase(){
+  if(MODE!=='firebase'||!db_fb)return;
+  var data={};
+  DB_LOCAL.clientes.forEach(function(c){data['clientes/'+c.id.replace('-','_')]=c});
+  DB_LOCAL.vehiculos.forEach(function(v){data['vehiculos/'+v.id.replace('-','_')]=v});
+  DB_LOCAL.servicios.forEach(function(s){data['servicios/'+s.id.replace('-','_')]=s});
+  return db_fb.ref('jcdb').update(data);
+}
+
+function guardarLocal(){
+  try{localStorage.setItem('jc_db_local',JSON.stringify(DB_LOCAL))}catch(e){}
+}
+
+async function salvar(){
+  if(MODE==='firebase'){
+    setSyncState('sync','Guardando...');
+    try{
+      await guardarFirebase();
+      setSyncState('ok','Guardado ✓');
+    }catch(e){
+      setSyncState('err','Error al guardar');
+      guardarLocal();
+    }
+  } else {
+    guardarLocal();
+  }
+}
+
+async function sincronizar(){
+  if(MODE!=='firebase'){showToast('Conecta Firebase para sincronizar','info');return}
+  setSyncState('sync','Sincronizando...');
+  var snap=await db_fb.ref('jcdb').once('value');
+  var data=snap.val();
+  if(data){
+    DB_LOCAL.clientes=Object.values(data.clientes||{});
+    DB_LOCAL.vehiculos=Object.values(data.vehiculos||{});
+    DB_LOCAL.servicios=Object.values(data.servicios||{});
+  }
+  setSyncState('ok','Sincronizado ✓');
+  showToast('Datos actualizados','ok');
+  var act=document.querySelector('.tab.active');
+  if(act){
+    if(act.dataset.tab==='clientes')renderClientes();
+    if(act.dataset.tab==='vehiculos')renderVehiculos();
+    if(act.dataset.tab==='resumen')renderResumen();
+  }
+}
+
+function usarModoLocal(){
+  MODE='local';
+  var backup=localStorage.getItem('jc_db_local');
+  if(backup)try{DB_LOCAL=JSON.parse(backup)}catch(e){DB_LOCAL=JSON.parse(JSON.stringify(SEED))}
+  else DB_LOCAL=JSON.parse(JSON.stringify(SEED));
+  setSyncState('off','Solo local');
+  document.getElementById('topbar-sub').textContent='Modo local (solo este dispositivo)';
+  document.getElementById('setup-screen').style.display='none';
+  document.getElementById('r-fecha').valueAsDate=new Date();
+  document.getElementById('r-total').value='$0.00';
+  renderResumen();
+}
+
+// ══ AUTO-RECONECTAR SI YA HAY CONFIG ════════════════════════════
+(function autoReconectar(){
+  var saved=localStorage.getItem(FB_CONFIG_KEY);
+  if(!saved)return;
+  try{
+    var cfg=JSON.parse(saved);
+    if(firebase.apps.length)return;
+    firebase.initializeApp({
+      apiKey:cfg.apiKey,authDomain:cfg.projectId+'.firebaseapp.com',
+      databaseURL:cfg.databaseURL,projectId:cfg.projectId,
+      storageBucket:cfg.projectId+'.appspot.com',appId:cfg.appId
+    });
+    db_fb=firebase.database();
+    MODE='firebase';
+    iniciarFirebase();
+  }catch(e){console.warn('No se pudo reconectar',e)}
+})();
+
+// ══ REGISTRO ════════════════════════════════════════════════════
+function buscarRegPlacas(){
+  var p=document.getElementById('r-placas').value.trim().toUpperCase();
+  var veh=p?gVehP(p):null;
+  var info=document.getElementById('r-info-veh');
+  var enc=document.getElementById('r-veh-enc');
+  var hs=document.getElementById('r-hist-sec');
+  if(veh){
+    var cli=gCli(veh.idCli)||{nombre:'—',tel:'—'};
+    enc.value=veh.id+' — '+veh.marca+' '+veh.modelo+' '+veh.anio;
+    document.getElementById('r-cli').value=cli.nombre;
+    document.getElementById('r-tel').value=cli.tel;
+    document.getElementById('r-unidad').value=veh.marca+' '+veh.modelo+' '+veh.anio+' ('+veh.color+')';
+    info.style.display='block';
+    var srvs=gSrvVeh(veh.id);
+    if(srvs.length){hs.style.display='block';document.getElementById('r-hist-body').innerHTML=histTabla(srvs)}
+    else hs.style.display='none';
+  }else{
+    enc.value=p?'⚠️ No encontrado — verifica placas':'';
+    info.style.display='none';hs.style.display='none';
+  }
+}
+
+async function guardarServicio(){
+  var placas=document.getElementById('r-placas').value.trim().toUpperCase();
+  var veh=placas?gVehP(placas):null;
+  if(!veh){showToast('Ingresa unas placas válidas','err');return}
+  var fecha=document.getElementById('r-fecha').value;
+  var tipo=document.getElementById('r-tipo').value;
+  if(!fecha){showToast('Falta la fecha del servicio','err');return}
+  if(!tipo){showToast('Falta el tipo de servicio','err');return}
+  var mo=parseFloat(document.getElementById('r-mo').value)||0;
+  var cr=parseFloat(document.getElementById('r-cr').value)||0;
+  var srv={
+    id:nextId('SRV',DB_LOCAL.servicios),
+    idVeh:veh.id,idCli:veh.idCli,placas:placas,fecha:fecha,tipo:tipo,
+    desc:document.getElementById('r-desc').value,
+    refacc:document.getElementById('r-refacc').value,
+    manoObra:mo,total:mo+cr,
+    tecnico:document.getElementById('r-tec').value,
+    estado:document.getElementById('r-estado').value
+  };
+  var km=parseInt(document.getElementById('r-km').value)||0;
+  if(km>0)veh.km=km;
+  DB_LOCAL.servicios.push(srv);
+  var btn=document.getElementById('btn-save');
+  btn.disabled=true;btn.textContent='⏳ Guardando...';
+  await salvar();
+  btn.disabled=false;btn.textContent='💾 Guardar Servicio';
+  showToast('Servicio '+srv.id+' guardado ✓','ok');
+  ['r-desc','r-refacc','r-tec','r-km'].forEach(function(id){document.getElementById(id).value=''});
+  document.getElementById('r-tipo').value='';
+  document.getElementById('r-mo').value=0;
+  document.getElementById('r-cr').value=0;
+  document.getElementById('r-total').value='$0.00';
+  buscarRegPlacas();
+}
+
+// ══ BUSCAR ══════════════════════════════════════════════════════
+function buscarPlacas(){
+  var p=document.getElementById('b-placas').value.trim().toUpperCase();
+  var el=document.getElementById('b-r-placas');
+  if(!p){el.innerHTML='';return}
+  var veh=gVehP(p);
+  if(!veh){el.innerHTML='<div class="alert">⚠️ Vehículo no encontrado. Verifica las placas o regístralo en la pestaña Vehículos.</div>';return}
+  var cli=gCli(veh.idCli)||{};
+  var srvs=gSrvVeh(veh.id);
+  var total=srvs.reduce(function(a,s){return a+s.total},0);
+  el.innerHTML='<div class="s-result"><div class="s-result-title">🚘 '+veh.marca+' '+veh.modelo+' '+veh.anio
+    +' &nbsp;<span class="plate-tag">'+veh.placas+'</span></div>'
+    +'<div class="g3" style="gap:8px;font-size:12px;margin-bottom:12px">'
+    +'<div><span style="color:var(--muted)">Cliente</span><br><strong>'+(cli.nombre||'—')+'</strong></div>'
+    +'<div><span style="color:var(--muted)">Teléfono</span><br><strong>'+(cli.tel||'—')+'</strong></div>'
+    +'<div><span style="color:var(--muted)">Tipo</span><br><span class="badge b-navy">'+(cli.tipo||'—')+'</span></div>'
+    +'<div><span style="color:var(--muted)">Color</span><br>'+veh.color+'</div>'
+    +'<div><span style="color:var(--muted)">Km</span><br>'+Number(veh.km).toLocaleString('es-MX')+' km</div>'
+    +'<div><span style="color:var(--muted)">Combustible</span><br>'+veh.combustible+'</div>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;margin-bottom:12px">'
+    +'<div class="kpi" style="flex:1;padding:10px"><div class="kpi-num" style="font-size:20px">'+srvs.length+'</div><div class="kpi-lbl">Servicios</div></div>'
+    +'<div class="kpi" style="flex:1;padding:10px"><div class="kpi-num" style="font-size:16px">'+fmt(total)+'</div><div class="kpi-lbl">Total facturado</div></div>'
+    +'</div>'
+    +histTabla(srvs)
+    +(cli.notas&&cli.notas!=='—'?'<div class="divider"></div><div style="font-size:12px;color:var(--muted)">📝 '+cli.notas+'</div>':'')
+    +'</div>';
+}
+
+function buscarNombre(){
+  var q=document.getElementById('b-nombre').value.trim().toLowerCase();
+  var el=document.getElementById('b-r-nombre');
+  if(!q){el.innerHTML='';return}
+  var res=DB_LOCAL.clientes.filter(function(c){
+    return c.nombre.toLowerCase().includes(q)||(c.empresa||'').toLowerCase().includes(q);
+  });
+  if(!res.length){el.innerHTML='<div class="alert">⚠️ No se encontró ningún cliente con ese nombre.</div>';return}
+  el.innerHTML=res.map(function(cli){
+    var srvs=gSrvCli(cli.id);
+    var vehs=DB_LOCAL.vehiculos.filter(function(v){return v.idCli===cli.id});
+    var total=srvs.reduce(function(a,s){return a+s.total},0);
+    return'<div class="s-result"><div class="s-result-title">👤 '+cli.nombre
+      +(cli.tipo==='Flotilla'?'<span class="badge b-navy">Flotilla</span>':'')+'</div>'
+      +'<div class="g3" style="gap:8px;font-size:12px;margin-bottom:10px">'
+      +'<div><span style="color:var(--muted)">Teléfono</span><br><strong>'+cli.tel+'</strong></div>'
+      +'<div><span style="color:var(--muted)">Ciudad</span><br>'+cli.ciudad+'</div>'
+      +'<div><span style="color:var(--muted)">Empresa</span><br>'+cli.empresa+'</div>'
+      +'<div><span style="color:var(--muted)">Servicios</span><br><strong>'+srvs.length+'</strong></div>'
+      +'<div><span style="color:var(--muted)">Total</span><br><strong style="color:var(--green)">'+fmt(total)+'</strong></div>'
+      +'<div><span style="color:var(--muted)">Vehículos</span><br>'+vehs.length+'</div>'
+      +'</div>'
+      +(vehs.length?'<div>'+vehs.map(function(v){return'<span class="plate-tag" style="margin:2px;display:inline-block">'+v.placas+'</span> <span style="font-size:11px">'+v.marca+' '+v.modelo+'</span>'}).join(' &nbsp;')+'</div>':'')
+      +(cli.notas&&cli.notas!=='—'?'<div class="divider"></div><div style="font-size:12px;color:var(--muted)">📝 '+cli.notas+'</div>':'')
+      +'</div>'
+  }).join('');
+}
+
+// ══ CLIENTES ════════════════════════════════════════════════════
+function renderClientes(){
+  var el=document.getElementById('lista-cli');
+  if(!DB_LOCAL.clientes.length){el.innerHTML='<p class="no-data">Sin clientes registrados</p>';return}
+  el.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Nombre</th><th>Teléfono</th><th>Tipo</th><th>Vehs</th><th>Total</th><th></th></tr></thead><tbody>'
+    +DB_LOCAL.clientes.map(function(c){
+      var srvs=gSrvCli(c.id);
+      var vehs=DB_LOCAL.vehiculos.filter(function(v){return v.idCli===c.id});
+      var tot=srvs.reduce(function(a,s){return a+s.total},0);
+      return'<tr><td><strong style="color:var(--navy2)">'+c.id+'</strong></td><td>'+c.nombre+'</td><td>'+c.tel+'</td>'
+        +'<td>'+(c.tipo==='Flotilla'?'<span class="badge b-navy">Flotilla</span>':'<span class="badge b-gray">Particular</span>')+'</td>'
+        +'<td style="text-align:center">'+vehs.length+'</td>'
+        +'<td style="color:var(--green);font-weight:600">'+fmt(tot)+'</td>'
+        +'<td><button class="btn btn-outline btn-sm" onclick="editarCli(\''+c.id+'\')">✏️</button></td></tr>'
+    }).join('')+'</tbody></table></div>';
+}
+
+function abrirModalCli(){
+  document.getElementById('cli-modal-title').textContent='Nuevo cliente';
+  document.getElementById('c-id').value=nextId('CLI',DB_LOCAL.clientes);
+  document.getElementById('c-id').readOnly=false;
+  ['c-nom','c-tel','c-email','c-emp','c-rfc','c-notas'].forEach(function(id){document.getElementById(id).value=''});
+  document.getElementById('c-tipo').value='Particular';
+  document.getElementById('c-ciudad').value='Tijuana';
+  editingCliId=null;
+  document.getElementById('m-cli').style.display='block';
+  document.getElementById('m-cli').scrollIntoView({behavior:'smooth'});
+}
+
+function editarCli(id){
+  var c=gCli(id);if(!c)return;
+  editingCliId=id;
+  document.getElementById('cli-modal-title').textContent='Editar cliente';
+  document.getElementById('c-id').value=c.id;document.getElementById('c-id').readOnly=true;
+  document.getElementById('c-nom').value=c.nombre||'';document.getElementById('c-tel').value=c.tel||'';
+  document.getElementById('c-email').value=c.email||'';document.getElementById('c-emp').value=c.empresa||'';
+  document.getElementById('c-tipo').value=c.tipo||'Particular';document.getElementById('c-ciudad').value=c.ciudad||'';
+  document.getElementById('c-rfc').value=c.rfc||'';document.getElementById('c-notas').value=c.notas||'';
+  document.getElementById('m-cli').style.display='block';
+  document.getElementById('m-cli').scrollIntoView({behavior:'smooth'});
+}
+
+async function guardarCliente(){
+  var id=document.getElementById('c-id').value.trim().toUpperCase();
+  var nom=document.getElementById('c-nom').value.trim();
+  if(!id||!nom){showToast('ID y nombre son obligatorios','err');return}
+  var cli={id,nombre:nom,tel:document.getElementById('c-tel').value,email:document.getElementById('c-email').value,
+    empresa:document.getElementById('c-emp').value||'—',tipo:document.getElementById('c-tipo').value,
+    ciudad:document.getElementById('c-ciudad').value||'Tijuana',rfc:document.getElementById('c-rfc').value,
+    notas:document.getElementById('c-notas').value||'—'};
+  var idx=DB_LOCAL.clientes.findIndex(function(c){return c.id===id});
+  if(idx>=0)DB_LOCAL.clientes[idx]=cli;else DB_LOCAL.clientes.push(cli);
+  await salvar();renderClientes();
+  document.getElementById('m-cli').style.display='none';
+  showToast('Cliente '+id+' guardado ✓','ok');
+}
+
+// ══ VEHÍCULOS ═══════════════════════════════════════════════════
+function renderVehiculos(){
+  var sel=document.getElementById('v-cli');
+  if(sel)sel.innerHTML=DB_LOCAL.clientes.map(function(c){return'<option value="'+c.id+'">'+c.id+' — '+c.nombre+'</option>'}).join('');
+  var el=document.getElementById('lista-veh');
+  if(!DB_LOCAL.vehiculos.length){el.innerHTML='<p class="no-data">Sin vehículos registrados</p>';return}
+  el.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Placas</th><th>Unidad</th><th>Cliente</th><th>Km</th><th>Srvs</th><th></th></tr></thead><tbody>'
+    +DB_LOCAL.vehiculos.map(function(v){
+      var cli=gCli(v.idCli)||{nombre:'—'};var srvs=gSrvVeh(v.id);
+      return'<tr><td><strong style="color:var(--navy2)">'+v.id+'</strong></td>'
+        +'<td><span class="plate-tag">'+v.placas+'</span></td>'
+        +'<td>'+v.marca+' '+v.modelo+' '+v.anio+'</td><td>'+cli.nombre+'</td>'
+        +'<td>'+Number(v.km).toLocaleString('es-MX')+' km</td>'
+        +'<td style="text-align:center">'+srvs.length+'</td>'
+        +'<td><button class="btn btn-outline btn-sm" onclick="editarVeh(\''+v.id+'\')">✏️</button></td></tr>'
+    }).join('')+'</tbody></table></div>';
+}
+
+function abrirModalVeh(){
+  renderVehiculos();
+  document.getElementById('v-id').value=nextId('VEH',DB_LOCAL.vehiculos);
+  editingVehId=null;
+  document.getElementById('m-veh').style.display='block';
+  document.getElementById('m-veh').scrollIntoView({behavior:'smooth'});
+}
+
+function editarVeh(id){
+  var v=gVeh(id);if(!v)return;
+  editingVehId=id;
+  renderVehiculos();
+  document.getElementById('v-id').value=v.id;document.getElementById('v-placas').value=v.placas;
+  document.getElementById('v-cli').value=v.idCli;document.getElementById('v-marca').value=v.marca;
+  document.getElementById('v-modelo').value=v.modelo;document.getElementById('v-anio').value=v.anio;
+  document.getElementById('v-color').value=v.color;document.getElementById('v-comb').value=v.combustible;
+  document.getElementById('v-km').value=v.km;document.getElementById('v-vin').value=v.vin;
+  document.getElementById('v-notas').value=v.notas;
+  document.getElementById('m-veh').style.display='block';
+  document.getElementById('m-veh').scrollIntoView({behavior:'smooth'});
+}
+
+async function guardarVehiculo(){
+  var id=document.getElementById('v-id').value.trim().toUpperCase();
+  var placas=document.getElementById('v-placas').value.trim().toUpperCase();
+  var idCli=document.getElementById('v-cli').value;
+  if(!id||!placas){showToast('ID y placas son obligatorios','err');return}
+  var veh={id,idCli,placas,marca:document.getElementById('v-marca').value,
+    modelo:document.getElementById('v-modelo').value,anio:parseInt(document.getElementById('v-anio').value)||0,
+    color:document.getElementById('v-color').value,combustible:document.getElementById('v-comb').value,
+    km:parseInt(document.getElementById('v-km').value)||0,vin:document.getElementById('v-vin').value,
+    notas:document.getElementById('v-notas').value};
+  var idx=DB_LOCAL.vehiculos.findIndex(function(v){return v.id===id});
+  if(idx>=0)DB_LOCAL.vehiculos[idx]=veh;else DB_LOCAL.vehiculos.push(veh);
+  await salvar();renderVehiculos();
+  document.getElementById('m-veh').style.display='none';
+  showToast('Vehículo '+id+' guardado ✓','ok');
+}
+
+// ══ RESUMEN ═════════════════════════════════════════════════════
+function renderResumen(){
+  var tot=DB_LOCAL.servicios.reduce(function(a,s){return a+s.total},0);
+  var enP=DB_LOCAL.servicios.filter(function(s){return s.estado==='En Proceso'}).length;
+  var flot=DB_LOCAL.clientes.filter(function(c){return c.tipo==='Flotilla'}).length;
+  document.getElementById('res-kpis').innerHTML='<div class="kpi-grid">'
+    +'<div class="kpi"><div class="kpi-num">'+DB_LOCAL.clientes.length+'</div><div class="kpi-lbl">Clientes</div></div>'
+    +'<div class="kpi"><div class="kpi-num">'+DB_LOCAL.vehiculos.length+'</div><div class="kpi-lbl">Vehículos</div></div>'
+    +'<div class="kpi"><div class="kpi-num">'+DB_LOCAL.servicios.length+'</div><div class="kpi-lbl">Servicios</div></div>'
+    +'<div class="kpi"><div class="kpi-num" style="font-size:18px">'+fmt(tot)+'</div><div class="kpi-lbl">Ingresos totales</div></div>'
+    +'<div class="kpi"><div class="kpi-num" style="color:var(--orange)">'+enP+'</div><div class="kpi-lbl">En proceso</div></div>'
+    +'<div class="kpi"><div class="kpi-num" style="color:var(--navy2)">'+flot+'</div><div class="kpi-lbl">Flotillas</div></div>'
+    +'</div>';
+  var ult=DB_LOCAL.servicios.slice().sort(function(a,b){return b.fecha.localeCompare(a.fecha)}).slice(0,6);
+  document.getElementById('res-ultimos').innerHTML=ult.map(function(s){
+    var v=gVeh(s.idVeh)||{};var c=gCli(s.idCli)||{};
+    return'<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
+      +'<div><strong style="color:var(--navy2)">'+s.id+'</strong> — '+s.tipo
+      +'<br><span style="font-size:11px;color:var(--muted)">'+(v.placas?'<span class="plate-tag" style="font-size:10px;padding:2px 6px">'+v.placas+'</span> ':'')+(c.nombre||'')+'</span></div>'
+      +'<div style="text-align:right;flex-shrink:0"><strong style="color:var(--green)">'+fmt(s.total)+'</strong><br>'+badge(s.estado)+'</div>'
+      +'</div></div>'
+  }).join('');
+}
+
+// ══ EXPORTAR CSV ════════════════════════════════════════════════
+function exportarCSV(){
+  var rows=[['ID','Vehículo','Cliente','Placas','Fecha','Tipo','Descripción','Refacciones','Mano de Obra','Total','Técnico','Estado']];
+  DB_LOCAL.servicios.forEach(function(s){
+    rows.push([s.id,s.idVeh,s.idCli,s.placas,s.fecha,s.tipo,s.desc,s.refacc,s.manoObra,s.total,s.tecnico,s.estado]);
+  });
+  var csv=rows.map(function(r){return r.map(function(v){return'"'+(v||'').toString().replace(/"/g,'""')+'"'}).join(',')}).join('\n');
+  var blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;
+  a.download='JC_Servicios_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();URL.revokeObjectURL(url);
+  showToast('CSV descargado ✓','ok');
+}
+
+// Abrir modal cliente con botón Nuevo
+document.querySelector('[onclick="toggleModal(\'m-cli\')"]').onclick=function(){abrirModalCli()};
+</script>
+</body>
+</html>
